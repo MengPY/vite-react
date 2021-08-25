@@ -1,45 +1,30 @@
-import React, { useState } from 'react'
-import logo from './logo.svg'
+import React, { useState, FC } from 'react'
+import {NavLink,withRouter,HashRouter, Route, BrowserRouter, Redirect, Link, Switch} from 'react-router-dom';
+import { renderRoutes} from 'react-router-config';
 import './App.css'
+import 'antd/dist/antd.css';
+import routes from './routes';
+import Home from './views/home'
+import About from './views/about'
+import Login from './views/login'
+import Test from './views/test'
 
-function App() {
+const App: FC = () => {
   const [count, setCount] = useState(0)
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
+      <BrowserRouter>
+        <Switch>
+          <Route path='/home' exact component={Home}></Route>
+          <Route path='/about' exact component={About}></Route>
+          <Route path='/login' exact component={Login}></Route>
+          <Route path='/test' exact component={Test}></Route>
+          <Redirect to="/home" from='/' exact /> 
+        </Switch>
+      </BrowserRouter>
     </div>
   )
 }
 
-export default App
+export default App;
