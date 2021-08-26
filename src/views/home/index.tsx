@@ -126,7 +126,7 @@ function Home(props: any) {
     {
       title: 'operation',
       dataIndex: 'operation',
-      render: (_, record: { key: React.Key }) =>
+      render: (_: any, record: { key: React.Key }) =>
         dataList.length >= 1 ? (
           <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record)}>
             <a>Delete</a>

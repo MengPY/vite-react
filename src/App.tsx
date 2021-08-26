@@ -14,7 +14,7 @@ const App: FC = () => {
 
   return (
     <div className="App">
-      <BrowserRouter>
+      <HashRouter>
         <Switch>
           <Route path='/home' exact component={Home}></Route>
           <Route path='/about' exact component={About}></Route>
@@ -22,7 +22,7 @@ const App: FC = () => {
           <Route path='/test' exact component={Test}></Route>
           <Redirect to="/home" from='/' exact /> 
         </Switch>
-      </BrowserRouter>
+      </HashRouter>
     </div>
   )
 }

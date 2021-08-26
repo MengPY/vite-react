@@ -20,7 +20,7 @@ function About() {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      render: text => <a>{text}</a>,
+      render: (text: string) => <a>{text}</a>,
     },
     {
       title: 'Age',
@@ -36,9 +36,9 @@ function About() {
       title: 'Tags',
       key: 'tags',
       dataIndex: 'tags',
-      render: tags => (
+      render: (tags: any) => (
         <>
-          {tags.map(tag => {
+          {tags.map((tag: any) => {
             let color = tag.length > 5 ? 'geekblue' : 'green';
             if (tag === 'loser') {
               color = 'volcano';
@@ -55,7 +55,7 @@ function About() {
     {
       title: 'Action',
       key: 'action',
-      render: (text, record) => (
+      render: (text: string, record: any) => (
         <Space size="middle">
           <a>Invite {record.name}</a>
           <a onClick={() => { delItem(record.id) }}>Delete</a>
@@ -136,7 +136,7 @@ function About() {
 
   return (
     <>
-      <Table pagination={pageInfo} columns={columns} dataSource={data} />
+      <Table columns={columns} dataSource={data} />
     </>
   )
 }
