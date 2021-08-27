@@ -6,8 +6,13 @@ import {Link} from 'react-router-dom';
 
 import { server } from './../../config/const';
 
+
+import request from './../../api/request';
+
 function Home(props: any) {
   const [count, setCount] = useState(0)
+
+  const [rowKey, setRowKey] = useState('')
   
   const [tbLoading, setTbLoading] = useState(false);
 
@@ -28,26 +33,28 @@ function Home(props: any) {
   }
   
   const add = () => {
+    setRowKey('');
     setIsModalVisible(true);
   }
 
-  const onFinish = (values: any) => {
+  const onFinish = async (values: any) => {
     console.log('Success:', values);
     let params = {
-      ...values
+      ...values,
     }
-    fetch(`${server}/user/insert`,{
-      method:'post',
-      headers:{
-        'Content-Type':'application/json;charset=UTF-8'
-      },
-      body: JSON.stringify(params),
-      mode:'cors',
-      cache:'default'
-    })
-    .then(res =>res.json())
-    .then((data) => {
-      setTbLoading(false);
+    if (rowKey) {
+      params.id = rowKey;
+      let data = await request(`${server}/user/update`, 'post', params);
+      let res = data || {};
+      if (res.success) {
+        message.success('更新成功');
+        setIsModalVisible(false);
+        getDataList();
+      } else {
+        message.error(res.data);
+      }
+    } else {
+      let data = await request(`${server}/user/insert`, 'post', params);
       let res = data || {};
       if (res.success) {
         message.success('新增成功');
@@ -56,7 +63,9 @@ function Home(props: any) {
       } else {
         message.error(res.data);
       }
-    });
+    }
+    
+
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -81,29 +90,24 @@ function Home(props: any) {
     setCount(count + 1);
   }
 
-  const handleDelete = (row: any) => {
+  const handleDelete = async (row: any) => {
     console.log(row)
-    fetch(`${server}/user/deleteByMap`,{
-      method:'post',
-      headers:{
-        'Content-Type':'application/json;charset=UTF-8'
-      },
-      body: JSON.stringify({
-        name: row.name
-      }),
-      mode:'cors',
-      cache:'default'
-    })
-    .then(res =>res.json())
-    .then((data) => {
-      setTbLoading(false);
-      let res = data || {};
-      if (res > 0) {
-        message.success('删除成功');
-        getDataList();
-      } else {
-        message.error(res.data);
-      }
+    let data = await request(`${server}/user/deleteByMap`, 'post', { name: row.name });
+    let res = data || {};
+    if (res > 0) {
+      message.success('删除成功');
+      getDataList();
+    } else {
+      message.error(res.data);
+    }
+  }
+
+  const edit = async (row: any) => {
+    console.log(row)
+    setRowKey(row.id);
+    setIsModalVisible(true);
+    form.setFieldsValue({
+      ...row
     });
   }
   
@@ -124,13 +128,32 @@ function Home(props: any) {
       key: 'email',
     },
     {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      render: (_: any, record: any) =>
+      record.createTime ?
+      new Date(record.createTime).toLocaleDateString()+ ' '+ new Date(record.createTime).toLocaleTimeString()
+      : null,
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      render: (_: any, record: any) =>
+      record.createTime ?
+      new Date(record.updateTime).toLocaleDateString()+ ' '+ new Date(record.updateTime).toLocaleTimeString()
+      : null,
+    },
+    {
       title: 'operation',
       dataIndex: 'operation',
       render: (_: any, record: { key: React.Key }) =>
         dataList.length >= 1 ? (
-          <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record)}>
-            <a>Delete</a>
-          </Popconfirm>
+          <>
+            <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record)}>
+              <a>Delete</a>
+            </Popconfirm>
+            <a onClick={ () => edit(record) } style={{ marginLeft: '10px' }}>Edit</a>
+          </>
         ) : null,
     },
   ];
@@ -138,51 +161,48 @@ function Home(props: any) {
     setPagination(pagination);
   };
 
-  const getDataList = () => {
+  const getDataList = async () => {
     let params = {
-      ...pagination
+      ...pagination,
+      pageNum: pagination.current,
     }
     setTbLoading(true);
-    fetch(`${server}/user/getUserPage?pageNum=${pagination.current}&pageSize=${pagination.pageSize}`,{
-      method:'get',
-      headers:{
-        'Content-Type':'application/json;charset=UTF-8'
-      },
-      mode:'cors',
-      cache:'default'
-    })
-    .then(res =>res.json())
-    .then((data) => {
-      setTbLoading(false);
-      let res = data || {};
-      if (res.success) {
-        let data = res.data.map((item: any) => {
-          return {
-            ...item,
-            key: item.name
-          }
-        })
-
-        if (!data.length && pagination.current > 1) {
-          setPagination({
-            ...pagination,
-            current: pagination.current-1
-          })
-        } else {
-          setPagination({
-            ...pagination,
-            total: res.total
-          })
-          setDataList(data);
+    let data = await request(`${server}/user/getUserPage`, 'get', params);
+    setTbLoading(false);
+    let res = data || {};
+    if (res.success) {
+      let data = res.data.map((item: any) => {
+        return {
+          ...item,
+          key: item.name
         }
-        
+      })
+
+      if (!data.length && pagination.current > 1) {
+        setPagination({
+          ...pagination,
+          current: pagination.current-1
+        })
       } else {
-        message.error(res.data);
+        setPagination({
+          ...pagination,
+          total: res.total
+        })
+        setDataList(data);
       }
-    });
+      
+    } else {
+      message.error(res.data);
+    }
   }
 
   useEffect(() => {
+    // let asyncTest = async () => {
+    //   let { data } = await request(`${server}/user/getUserPage`, 'get', pagination);
+    //   console.log(data)
+    // }
+    // asyncTest();
+
     getDataList();
   }, [pagination.current])
 
