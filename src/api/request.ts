@@ -18,7 +18,7 @@ const request = async (url: string, method: string, params: any) => {
     })
   }
 
-  const config = {
+  const config: any = {
     method,
     headers:{
       'Content-Type':'application/json;charset=UTF-8'
@@ -28,7 +28,9 @@ const request = async (url: string, method: string, params: any) => {
     cache:'default'
   }
 
-  if (method === 'GET') delete config.body;
+  if (method === 'GET') {
+    config.body && delete config.body;
+  }
 
   let data = (await fetch(url, { ...config as any })).json();
   return data;

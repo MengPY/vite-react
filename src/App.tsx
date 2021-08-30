@@ -8,6 +8,7 @@ import Home from './views/home'
 import About from './views/about'
 import Login from './views/login'
 import Test from './views/test'
+import TreeDemo from './views/tree'
 
 const App: FC = () => {
   const [count, setCount] = useState(0)
@@ -20,6 +21,7 @@ const App: FC = () => {
           <Route path='/about' exact component={About}></Route>
           <Route path='/login' exact component={Login}></Route>
           <Route path='/test' exact component={Test}></Route>
+          <Route path='/tree' exact component={TreeDemo}></Route>
           <Redirect to="/home" from='/' exact /> 
         </Switch>
       </HashRouter>
