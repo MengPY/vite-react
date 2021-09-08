@@ -13,6 +13,8 @@ function Home(props: any) {
   const [count, setCount] = useState(0)
 
   const [rowKey, setRowKey] = useState('')
+
+  const [searchName, setSearchName] = useState('')
   
   const [tbLoading, setTbLoading] = useState(false);
 
@@ -54,7 +56,7 @@ function Home(props: any) {
         message.error(res.data);
       }
     } else {
-      let data = await request(`${server}/user/insert`, 'post', params);
+      let data = await request(`${server}/user/insertUser`, 'post', params);
       let res = data || {};
       if (res.success) {
         message.success('新增成功');
@@ -164,10 +166,11 @@ function Home(props: any) {
   const getDataList = async () => {
     let params = {
       ...pagination,
+      name: searchName,
       pageNum: pagination.current,
     }
     setTbLoading(true);
-    let data = await request(`${server}/user/getUserPage`, 'get', params);
+    let data = await request(`${server}/user/getUserListByNameLike`, 'get', params);
     setTbLoading(false);
     let res = data || {};
     if (res.success) {
@@ -198,7 +201,7 @@ function Home(props: any) {
 
   useEffect(() => {
     // let asyncTest = async () => {
-    //   let { data } = await request(`${server}/user/getUserPage`, 'get', pagination);
+    //   let { data } = await request(`${server}/user/getListMaps`, 'get', pagination);
     //   console.log(data)
     // }
     // asyncTest();
@@ -214,7 +217,10 @@ function Home(props: any) {
       <h3 onClick={handleClick}>{ count }</h3>
       <Link to="/about">关于</Link>
       <Button type="primary" onClick={ toLogin } style={{ marginRight: '10px' }}>Login</Button>
-      <Button type="primary" onClick={ add }>新增</Button>
+      <Button type="primary" onClick={ add } style={{ marginRight: '10px' }}>新增</Button>
+
+      <Input style={{ width: '200px' }} onChange={ (e) => { setSearchName(e.target.value) } }></Input>
+      <Button type="primary" onClick={ getDataList } style={{ marginRight: '10px' }}>搜索</Button>
       <Table loading={tbLoading} pagination={pagination} dataSource={dataList} columns={columns} onChange={handleTableChange} />
 
       <Modal title="Add Modal" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
